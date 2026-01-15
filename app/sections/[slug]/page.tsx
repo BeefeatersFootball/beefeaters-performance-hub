@@ -1,18 +1,9 @@
+// app/sections/[slug]/page.tsx
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity";
 import { resourcesBySectionSlugQuery, sectionBySlugQuery } from "@/lib/queries";
-import SectionFeedClient from "@/components/SectionFeedClient";
-type Resource = {
-  _id: string;
-  title: string;
-  description?: string;
-  type: "video" | "pdf";
-  youtubeUrl?: string;
-  pdfUrl?: string;
-  tags?: string[];
-  pinned?: boolean;
-  publishedAt?: string;
-};
+import SectionFeedClient, { type Resource } from "@/components/SectionFeedClient";
 
 type Section = {
   title: string;
@@ -20,29 +11,20 @@ type Section = {
   description?: string;
 };
 
+// ✅ Next 16 / App Router safe params typing
 export default async function SectionPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const slug = params.slug;
+  // ✅ Await params so slug is NEVER undefined in prod builds
+  const { slug } = await params;
+
+  if (!slug) return notFound();
 
   const section: Section | null = await client.fetch(sectionBySlugQuery, { slug });
 
-  // If section doesn't exist, show a nice 404-ish page (instead of crashing)
-  if (!section) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-[#0B1F4B] to-black text-white p-6">
-        <Link href="/" className="text-sm text-gray-300 hover:text-white">
-          ← Back
-        </Link>
-        <h1 className="mt-6 text-2xl font-bold">Section not found</h1>
-        <p className="mt-2 text-gray-300">
-          This section hasn’t been created in Sanity yet.
-        </p>
-      </main>
-    );
-  }
+  if (!section) return notFound();
 
   const items: Resource[] = await client.fetch(resourcesBySectionSlugQuery, { slug });
 
