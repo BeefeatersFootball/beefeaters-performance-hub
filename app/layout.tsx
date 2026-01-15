@@ -12,7 +12,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-/* ---------- METADATA ---------- */
 export const metadata: Metadata = {
   title: {
     default: "Beefeaters Performance Hub",
@@ -31,18 +30,19 @@ export const metadata: Metadata = {
     "transition out of sport",
   ],
   icons: {
-    icon: "/favicon.ico",
-    apple: "/icons/icon-192.png",
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
   },
   manifest: "/manifest.webmanifest",
 };
 
-/* ---------- VIEWPORT / PWA ---------- */
 export const viewport: Viewport = {
   themeColor: "#0B1F4B",
 };
 
-/* ---------- ROOT LAYOUT ---------- */
 export default function RootLayout({
   children,
 }: {
@@ -50,9 +50,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
     </html>
