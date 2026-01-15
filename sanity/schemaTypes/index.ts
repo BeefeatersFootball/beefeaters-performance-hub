@@ -1,4 +1,4 @@
-import videoResource from "./videoResource";
-import pdfResource from "./pdfResource";
+import { section } from "./section";
+import { resource } from "./resource";
 
-export const schemaTypes = [videoResource, pdfResource];
+export const schemaTypes = [section, resource];

@@ -1,0 +1,60 @@
+// components/ResourceCard.tsx
+import Link from "next/link";
+
+type Props = {
+  title: string;
+  description?: string;
+  kind: "video" | "pdf";
+  href: string;
+  tags?: string[];
+};
+
+export function ResourceCard({ title, description, kind, href, tags }: Props) {
+  const icon = kind === "video" ? "🎥" : "📄";
+  const label = kind === "video" ? "Video" : "PDF";
+
+  return (
+    <Link
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-[#C4161C] hover:bg-white/10"
+    >
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-2xl">
+          {icon}
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-gray-200">
+              {label}
+            </span>
+          </div>
+
+          {description ? (
+            <p className="mt-2 text-sm text-gray-300">{description}</p>
+          ) : null}
+
+          {tags?.length ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tags.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-gray-200"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <span className="text-[#C4161C] text-xl opacity-0 transition group-hover:opacity-100">
+          →
+        </span>
+      </div>
+    </Link>
+  );
+}
