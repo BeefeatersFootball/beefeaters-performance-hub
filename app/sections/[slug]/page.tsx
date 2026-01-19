@@ -21,13 +21,29 @@ type Section = {
   description?: string;
 };
 
-export default async function SectionPage({
-  params,
-}: {
-  params: { slug: string };
+export default async function SectionPage(props: {
+  params: { slug: string } | Promise<{ slug: string }>;
 }) {
-  const slug = params.slug;
+  // ✅ Works whether Next gives params as an object or a Promise
+  const params = await props.params;
+  const slug = params?.slug;
 
+  // ✅ Guard: if slug is missing, don't run GROQ at all
+  if (!slug) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-[#0B1F4B] to-black text-white p-6">
+        <Link href="/" className="text-sm text-gray-300 hover:text-white">
+          ← Back
+        </Link>
+        <h1 className="mt-6 text-2xl font-bold">Missing section slug</h1>
+        <p className="mt-2 text-gray-300">
+          The URL is missing a section identifier.
+        </p>
+      </main>
+    );
+  }
+
+  // ✅ IMPORTANT: pass { slug } as the second argument
   const section: Section | null = await client.fetch(sectionBySlugQuery, { slug });
 
   if (!section) {
@@ -44,6 +60,7 @@ export default async function SectionPage({
     );
   }
 
+  // ✅ IMPORTANT: pass { slug } here too
   const items: Resource[] = await client.fetch(resourcesBySectionSlugQuery, { slug });
 
   return (
