@@ -7,18 +7,17 @@ type Props = {
   kind: "video" | "pdf";
   href: string;
   tags?: string[];
+  from?: string; // ✅ new
 };
 
-export function ResourceCard({ title, description, kind, href, tags }: Props) {
+export function ResourceCard({ title, description, kind, href, tags, from }: Props) {
   const icon = kind === "video" ? "🎥" : "📄";
   const label = kind === "video" ? "Video" : "PDF";
-
   const isPdf = kind === "pdf";
 
-  // If PDF: open inside the app via /pdf viewer route
   const internalPdfHref = `/pdf?src=${encodeURIComponent(href)}&title=${encodeURIComponent(
     title
-  )}`;
+  )}${from ? `&from=${encodeURIComponent(from)}` : ""}`;
 
   const CardInner = (
     <div className="group block rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-[#C4161C] hover:bg-white/10">
@@ -60,7 +59,7 @@ export function ResourceCard({ title, description, kind, href, tags }: Props) {
     </div>
   );
 
-  // PDF: internal route (no new tab)
+  // PDF: internal route (same tab)
   if (isPdf) {
     return href ? (
       <Link href={internalPdfHref}>{CardInner}</Link>
@@ -69,7 +68,7 @@ export function ResourceCard({ title, description, kind, href, tags }: Props) {
     );
   }
 
-  // Video: external new tab is usually fine
+  // Video: external new tab
   return href ? (
     <a href={href} target="_blank" rel="noopener noreferrer">
       {CardInner}

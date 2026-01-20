@@ -1,14 +1,28 @@
 // app/pdf/page.tsx
-import Link from "next/link";
+"use client";
 
-export default async function PdfPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ src?: string; title?: string }>;
-}) {
-  const sp = await searchParams;
-  const src = sp?.src ? decodeURIComponent(sp.src) : "";
-  const title = sp?.title ? decodeURIComponent(sp.title) : "PDF";
+import { useMemo } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+
+export default function PdfPage() {
+  const router = useRouter();
+  const sp = useSearchParams();
+
+  const src = useMemo(() => {
+    const raw = sp.get("src") || "";
+    return raw ? decodeURIComponent(raw) : "";
+  }, [sp]);
+
+  const title = useMemo(() => {
+    const raw = sp.get("title") || "PDF";
+    return decodeURIComponent(raw);
+  }, [sp]);
+
+  const from = useMemo(() => {
+    const raw = sp.get("from") || "";
+    return raw ? decodeURIComponent(raw) : "";
+  }, [sp]);
 
   if (!src) {
     return (
@@ -17,30 +31,62 @@ export default async function PdfPage({
           ← Back
         </Link>
         <h1 className="mt-6 text-2xl font-bold">Missing PDF link</h1>
-        <p className="mt-2 text-gray-300">
-          This PDF doesn’t have a valid file URL.
-        </p>
+        <p className="mt-2 text-gray-300">This PDF doesn’t have a valid file URL.</p>
       </main>
     );
   }
 
+  const handleBack = () => {
+    // If user has navigation history, go back
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    // Fallback: go back to the section page if we have it, otherwise home
+    if (from) {
+      router.push(from);
+      return;
+    }
+    router.push("/");
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0B1F4B] to-black text-white">
-      <header className="p-6">
-        <Link href="javascript:history.back()" className="text-sm text-gray-300 hover:text-white">
+      <header className="p-6 pb-4">
+        <button
+          onClick={handleBack}
+          className="text-sm text-gray-300 hover:text-white"
+        >
           ← Back
-        </Link>
-        <h1 className="mt-3 text-xl font-bold">{title}</h1>
-        <p className="mt-1 text-xs text-gray-300 break-all">{src}</p>
+        </button>
+
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <h1 className="text-xl font-bold leading-snug">{title}</h1>
+
+          {/* iOS-friendly escape hatch: open the PDF itself */}
+          <a
+            href={src}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-xs text-gray-200 hover:bg-white/15"
+          >
+            Open full screen
+          </a>
+        </div>
       </header>
 
-      {/* PDF viewer */}
+      {/* Viewer: make it truly fit the screen on phones */}
       <div className="px-4 pb-6">
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
           <iframe
             src={src}
             title={title}
-            className="h-[80vh] w-full"
+            className="w-full"
+            style={{
+              height: "calc(100vh - 140px)", // ✅ better for iPhone
+              border: 0,
+            }}
+            allow="fullscreen"
           />
         </div>
       </div>

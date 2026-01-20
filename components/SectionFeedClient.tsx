@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ResourceCard } from "@/components/ResourceCard";
 
 export type Resource = {
@@ -18,17 +19,16 @@ export type Resource = {
 
 export default function SectionFeedClient({ items }: { items: Resource[] }) {
   const [query, setQuery] = useState("");
+  const pathname = usePathname(); // ✅ "/sections/nutrition"
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
 
     return items.filter((r) => {
-      const haystack = [
-        r.title,
-        r.description ?? "",
-        ...(r.tags ?? []),
-      ].join(" ").toLowerCase();
+      const haystack = [r.title, r.description ?? "", ...(r.tags ?? [])]
+        .join(" ")
+        .toLowerCase();
 
       return haystack.includes(q);
     });
@@ -47,10 +47,7 @@ export default function SectionFeedClient({ items }: { items: Resource[] }) {
 
       <div className="grid gap-4">
         {filtered.map((r) => {
-          const href =
-            r.type === "video"
-              ? r.youtubeUrl || ""
-              : r.pdfUrl || "";
+          const href = r.type === "video" ? r.youtubeUrl || "" : r.pdfUrl || "";
 
           return (
             <ResourceCard
@@ -60,6 +57,7 @@ export default function SectionFeedClient({ items }: { items: Resource[] }) {
               kind={r.type}
               href={href}
               tags={r.tags}
+              from={pathname} // ✅ tells PDF viewer where to go back to
             />
           );
         })}
