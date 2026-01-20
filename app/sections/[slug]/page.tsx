@@ -26,19 +26,7 @@ export default async function SectionPage({
 }: {
   params: { slug: string };
 }) {
-  const slug = params?.slug;
-
-  // Guard: never run GROQ without slug
-  if (!slug) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-[#0B1F4B] to-black text-white p-6">
-        <Link href="/" className="text-sm text-gray-300 hover:text-white">
-          ← Back
-        </Link>
-        <h1 className="mt-6 text-2xl font-bold">Missing section slug</h1>
-      </main>
-    );
-  }
+  const slug = params.slug;
 
   const section: Section | null = await client.fetch(sectionBySlugQuery, { slug });
 
