@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity";
 import { resourcesBySectionSlugQuery, sectionBySlugQuery } from "@/lib/queries";
 import SectionFeedClient from "@/components/SectionFeedClient";
@@ -25,14 +24,11 @@ type Section = {
 export default async function SectionPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const slug = params.slug; // ✅ this should ALWAYS exist in app router dynamic routes
+  // ✅ Next 16 (Turbopack) can provide params as a Promise
+  const { slug } = await params;
 
-  // If slug is somehow missing, treat it as a 404
-  if (!slug) notFound();
-
-  // ✅ MUST pass { slug } (2nd argument) to avoid GROQ "$slug not provided"
   const section: Section | null = await client.fetch(sectionBySlugQuery, { slug });
 
   if (!section) {
@@ -49,7 +45,6 @@ export default async function SectionPage({
     );
   }
 
-  // ✅ MUST pass { slug } here too
   const items: Resource[] = await client.fetch(resourcesBySectionSlugQuery, { slug });
 
   return (
