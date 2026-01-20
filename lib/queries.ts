@@ -9,16 +9,20 @@ export const sectionBySlugQuery = groq`
 `;
 
 export const resourcesBySectionSlugQuery = groq`
-*[_type == "resource" && section->slug.current == $slug]
-| order(pinned desc, publishedAt desc){
-  _id,
-  title,
-  description,
-  type,
-  youtubeUrl,
-  pdfUrl,
-  tags,
-  pinned,
-  publishedAt
-}
+  *[
+    _type == "resource" &&
+    defined(section) &&
+    section->slug.current == $slug
+  ]
+  | order(pinned desc, publishedAt desc){
+    _id,
+    title,
+    description,
+    type,
+    youtubeUrl,
+    "pdfUrl": pdf.asset->url,
+    tags,
+    pinned,
+    publishedAt
+  }
 `;
