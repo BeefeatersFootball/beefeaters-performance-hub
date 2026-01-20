@@ -1,35 +1,32 @@
 import { groq } from "next-sanity";
 
-/**
- * Fetch a single Section by slug
- * Used by: app/sections/[slug]/page.tsx
- */
 export const sectionBySlugQuery = groq`
-  *[_type == "section" && slug.current == $slug][0]{
-    title,
-    "slug": slug.current,
-    description
-  }
+*[_type == "section" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  description
+}
 `;
 
-/**
- * Fetch all Resources belonging to a Section (by section slug)
- */
 export const resourcesBySectionSlugQuery = groq`
-  *[
-    _type == "resource" &&
-    defined(section) &&
-    section->slug.current == $slug
-  ]
-  | order(pinned desc, publishedAt desc){
-    _id,
-    title,
-    description,
-    type,
-    youtubeUrl,
+*[_type == "resource" && section->slug.current == $slug]
+| order(pinned desc, publishedAt desc){
+  _id,
+  title,
+  description,
+  type,
+  youtubeUrl,
+
+  // ✅ For uploaded PDFs (supports multiple possible field names)
+  "pdfUrl": coalesce(
     pdfUrl,
-    tags,
-    pinned,
-    publishedAt
-  }
+    pdfFile.asset->url,
+    pdf.asset->url,
+    file.asset->url
+  ),
+
+  tags,
+  pinned,
+  publishedAt
+}
 `;

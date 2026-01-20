@@ -13,13 +13,15 @@ export function ResourceCard({ title, description, kind, href, tags }: Props) {
   const icon = kind === "video" ? "🎥" : "📄";
   const label = kind === "video" ? "Video" : "PDF";
 
-  return (
-    <Link
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-[#C4161C] hover:bg-white/10"
-    >
+  const isPdf = kind === "pdf";
+
+  // If PDF: open inside the app via /pdf viewer route
+  const internalPdfHref = `/pdf?src=${encodeURIComponent(href)}&title=${encodeURIComponent(
+    title
+  )}`;
+
+  const CardInner = (
+    <div className="group block rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-[#C4161C] hover:bg-white/10">
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-2xl">
           {icon}
@@ -55,6 +57,24 @@ export function ResourceCard({ title, description, kind, href, tags }: Props) {
           →
         </span>
       </div>
-    </Link>
+    </div>
+  );
+
+  // PDF: internal route (no new tab)
+  if (isPdf) {
+    return href ? (
+      <Link href={internalPdfHref}>{CardInner}</Link>
+    ) : (
+      <div className="opacity-60">{CardInner}</div>
+    );
+  }
+
+  // Video: external new tab is usually fine
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {CardInner}
+    </a>
+  ) : (
+    <div className="opacity-60">{CardInner}</div>
   );
 }
